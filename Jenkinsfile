@@ -22,10 +22,44 @@ pipeline {
                 sh 'podman images'
             }
         }
+
         stage('Test') {
             steps {
                 echo 'Testing application availability'
                 sh 'curl -f http://localhost:8082'
+            }
+        }
+
+        stage('Publish to Docker Hub') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKERHUB_USER',
+                        passwordVariable: 'DOCKERHUB_TOKEN'
+                    )
+                ]) {
+                    sh '''
+                        set +x
+
+                        echo "Logging in to Docker Hub"
+
+                        printf '%s' "$DOCKERHUB_TOKEN" | podman login docker.io \
+                            --username "$DOCKERHUB_USER" \
+                            --password-stdin
+
+                        echo "Tagging application image"
+
+                        podman tag my-devops-app:v2 \
+                            docker.io/mohammed-devops-engineer/my-devops-app:v2
+
+                        echo "Pushing image to Docker Hub"
+
+                        podman push docker.io/mohammed-devops-engineer/my-devops-app:v2
+
+                        podman logout docker.io
+                    '''
+                }
             }
         }
     }
@@ -39,5 +73,4 @@ pipeline {
             echo 'CI/CD pipeline failed. Check the console output'
         }
     }
-     
 }
