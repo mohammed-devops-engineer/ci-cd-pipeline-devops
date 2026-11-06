@@ -51,11 +51,11 @@ pipeline {
                         echo "Tagging application image"
 
                         podman tag my-devops-app:v2 \
-                            docker.io/mohammed-devops-engineer/my-devops-app:v2
+                             docker.io/mohammedzakariyya/my-devops-app:v2
 
                         echo "Pushing image to Docker Hub"
 
-                        podman push docker.io/mohammed-devops-engineer/my-devops-app:v2
+                        podman push docker.io/mohammedzakariyya/my-devops-app:v2
 
                         podman logout docker.io
                     '''
